@@ -53,6 +53,7 @@ dependencies {
     implementation("com.github.bumptech.glide:glide:4.12.0")
     implementation("com.android.volley:volley-cronet:1.2.1")
     implementation("com.google.code.gson:gson:2.9.1")
+    implementation(libs.volley)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

@@ -18,22 +18,23 @@ import androidx.viewpager2.widget.ViewPager2;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
+import com.example.aplicatiecinema.Adapters.CategoryListAdapter;
 import com.example.aplicatiecinema.Adapters.FilmListAdapter;
 import com.example.aplicatiecinema.Adapters.SliderAdapters;
+import com.example.aplicatiecinema.Domain.GenresItem;
 import com.example.aplicatiecinema.Domain.ListFilm;
 import com.example.aplicatiecinema.Domain.SliderItems;
 import com.example.aplicatiecinema.R;
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
-    private RecyclerView.Adapter adapterBestMovies,AdapterUpcomming,adapterCategory;
+    private RecyclerView.Adapter adapterBestMovies,adapterUpcomming,adapterCategory;
     private RecyclerView recyclerViewBestMovies, recyclerviewUpcomming,recyclerviewCategory;
     private RequestQueue mRequesstQueue;
     private StringRequest mStringRequest,mStringRequest2,mStringRequest3;
@@ -48,11 +49,13 @@ public class MainActivity extends AppCompatActivity {
 
         initView();
         banner();
-        sendRequest();
+        sendRequestBestMovies();
+        sendRequestUpComming();
+        sendRequestCategory();
 
     }
 
-    private void sendRequest() {
+    private void sendRequestBestMovies() {
         mRequesstQueue= Volley.newRequestQueue(this);
         loading1.setVisibility(View.VISIBLE);
         mStringRequest=new StringRequest(Request.Method.GET, "https://moviesapi.ir/api/v1/movies?page=1", response -> {
@@ -66,6 +69,40 @@ public class MainActivity extends AppCompatActivity {
             Log.i(TAG, "onErrorResponse: "+error.toString());
         });
         mRequesstQueue.add(mStringRequest);
+    }
+
+    private void sendRequestUpComming() {
+        mRequesstQueue= Volley.newRequestQueue(this);
+        loading3.setVisibility(View.VISIBLE);
+        mStringRequest3=new StringRequest(Request.Method.GET, "https://moviesapi.ir/api/v1/movies?page=2", response -> {
+            Gson gson=new Gson();
+            loading3.setVisibility(View.GONE);
+            ListFilm items=gson.fromJson(response,ListFilm.class);
+            adapterUpcomming=new FilmListAdapter(items);
+            recyclerviewUpcomming.setAdapter(adapterUpcomming);
+        }, error -> {
+            loading3.setVisibility(View.GONE);
+            Log.i(TAG, "onErrorResponse: "+error.toString());
+        });
+        mRequesstQueue.add(mStringRequest3);
+    }
+
+    private void sendRequestCategory() {
+        mRequesstQueue= Volley.newRequestQueue(this);
+        loading2.setVisibility(View.VISIBLE);
+        mStringRequest2=new StringRequest(Request.Method.GET, "https://moviesapi.ir/api/v1/genres", response -> {
+            Gson gson=new Gson();
+            loading2.setVisibility(View.GONE);
+            ArrayList<GenresItem> catList=gson.fromJson(response,new TypeToken<ArrayList<GenresItem>>(){
+
+            }.getType());
+            adapterCategory=new CategoryListAdapter(catList);
+            recyclerviewCategory.setAdapter(adapterCategory);
+        }, error -> {
+            loading2.setVisibility(View.GONE);
+            Log.i(TAG, "onErrorResponse: "+error.toString());
+        });
+        mRequesstQueue.add(mStringRequest2);
     }
 
     private void banner() {
@@ -123,9 +160,9 @@ public class MainActivity extends AppCompatActivity {
         viewPager2=findViewById(R.id.viewpagerSlider);
         recyclerViewBestMovies=findViewById(R.id.view1);
         recyclerViewBestMovies.setLayoutManager(new LinearLayoutManager(this,LinearLayoutManager.HORIZONTAL,false));
-        recyclerviewUpcomming=findViewById(R.id.view2);
+        recyclerviewUpcomming=findViewById(R.id.view3);
         recyclerviewUpcomming.setLayoutManager(new LinearLayoutManager(this,LinearLayoutManager.HORIZONTAL,false));
-        recyclerviewCategory=findViewById(R.id.view3);
+        recyclerviewCategory=findViewById(R.id.view2);
         recyclerviewCategory.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL,false));
         loading1=findViewById(R.id.progressBar1);
         loading2=findViewById(R.id.progressBar2);
