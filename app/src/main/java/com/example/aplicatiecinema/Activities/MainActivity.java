@@ -1,30 +1,45 @@
 package com.example.aplicatiecinema.Activities;
 
+import static android.content.ContentValues.TAG;
+
 import android.os.Bundle;
 import android.os.Handler;
+import android.util.Log;
 import android.view.View;
+import android.widget.ProgressBar;
 
-import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager2.widget.CompositePageTransformer;
 import androidx.viewpager2.widget.MarginPageTransformer;
 import androidx.viewpager2.widget.ViewPager2;
 
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
+import com.example.aplicatiecinema.Adapters.FilmListAdapter;
 import com.example.aplicatiecinema.Adapters.SliderAdapters;
-import com.example.aplicatiecinema.Domian.SliderItems;
+import com.example.aplicatiecinema.Domain.ListFilm;
+import com.example.aplicatiecinema.Domain.SliderItems;
 import com.example.aplicatiecinema.R;
+import com.google.gson.Gson;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
-private ViewPager2 viewPager2;
-private Handler slideHandler= new Handler();
+    private RecyclerView.Adapter adapterBestMovies,AdapterUpcomming,adapterCategory;
+    private RecyclerView recyclerViewBestMovies, recyclerviewUpcomming,recyclerviewCategory;
+    private RequestQueue mRequesstQueue;
+    private StringRequest mStringRequest,mStringRequest2,mStringRequest3;
+    private ProgressBar loading1,loading2,loading3;
+    private ViewPager2 viewPager2;
+    private Handler slideHandler= new Handler();
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -33,7 +48,24 @@ private Handler slideHandler= new Handler();
 
         initView();
         banner();
+        sendRequest();
 
+    }
+
+    private void sendRequest() {
+        mRequesstQueue= Volley.newRequestQueue(this);
+        loading1.setVisibility(View.VISIBLE);
+        mStringRequest=new StringRequest(Request.Method.GET, "https://moviesapi.ir/api/v1/movies?page=1", response -> {
+            Gson gson=new Gson();
+            loading1.setVisibility(View.GONE);
+            ListFilm items=gson.fromJson(response,ListFilm.class);
+            adapterBestMovies=new FilmListAdapter(items);
+            recyclerViewBestMovies.setAdapter(adapterBestMovies);
+        }, error -> {
+            loading1.setVisibility(View.GONE);
+            Log.i(TAG, "onErrorResponse: "+error.toString());
+        });
+        mRequesstQueue.add(mStringRequest);
     }
 
     private void banner() {
@@ -89,5 +121,14 @@ private Handler slideHandler= new Handler();
 
     private void initView() {
         viewPager2=findViewById(R.id.viewpagerSlider);
+        recyclerViewBestMovies=findViewById(R.id.view1);
+        recyclerViewBestMovies.setLayoutManager(new LinearLayoutManager(this,LinearLayoutManager.HORIZONTAL,false));
+        recyclerviewUpcomming=findViewById(R.id.view2);
+        recyclerviewUpcomming.setLayoutManager(new LinearLayoutManager(this,LinearLayoutManager.HORIZONTAL,false));
+        recyclerviewCategory=findViewById(R.id.view3);
+        recyclerviewCategory.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL,false));
+        loading1=findViewById(R.id.progressBar1);
+        loading2=findViewById(R.id.progressBar2);
+        loading3=findViewById(R.id.progressBar3);
     }
 }

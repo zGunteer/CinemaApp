@@ -51,6 +51,8 @@ dependencies {
     implementation(libs.androidx.activity)
     implementation("androidx.viewpager2:viewpager2:1.0.0")
     implementation("com.github.bumptech.glide:glide:4.12.0")
+    implementation("com.android.volley:volley-cronet:1.2.1")
+    implementation("com.google.code.gson:gson:2.9.1")
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
