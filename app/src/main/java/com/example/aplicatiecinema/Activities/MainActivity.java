@@ -16,7 +16,7 @@ import androidx.viewpager2.widget.CompositePageTransformer;
 import androidx.viewpager2.widget.MarginPageTransformer;
 import androidx.viewpager2.widget.ViewPager2;
 
-import com.android.volley.Request;
+//import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
@@ -25,13 +25,20 @@ import com.example.aplicatiecinema.Adapters.FilmListAdapter;
 import com.example.aplicatiecinema.Adapters.SliderAdapters;
 import com.example.aplicatiecinema.Domain.GenresItem;
 import com.example.aplicatiecinema.Domain.ListFilm;
+import com.example.aplicatiecinema.Domain.ListFilm1;
 import com.example.aplicatiecinema.Domain.SliderItems;
 import com.example.aplicatiecinema.R;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+
+import okhttp3.OkHttpClient;
+import okhttp3.Response;
+import okhttp3.Request;
+
 
 public class MainActivity extends AppCompatActivity {
     private RecyclerView.Adapter adapterBestMovies,adapterUpcomming,adapterCategory;
@@ -49,61 +56,101 @@ public class MainActivity extends AppCompatActivity {
 
         initView();
         banner();
+//        test();
         sendRequestBestMovies();
-        sendRequestUpComming();
-        sendRequestCategory();
+        //sendRequestUpComming();
+        //sendRequestCategory();
 
     }
 
     private void sendRequestBestMovies() {
-        mRequesstQueue= Volley.newRequestQueue(this);
+        //mRequesstQueue= Volley.newRequestQueue(this);
         loading1.setVisibility(View.VISIBLE);
-        mStringRequest=new StringRequest(Request.Method.GET, "https://moviesapi.ir/api/v1/movies?page=1", response -> {
-            Gson gson=new Gson();
-            loading1.setVisibility(View.GONE);
-            ListFilm items=gson.fromJson(response,ListFilm.class);
-            adapterBestMovies=new FilmListAdapter(items);
-            recyclerViewBestMovies.setAdapter(adapterBestMovies);
-        }, error -> {
-            loading1.setVisibility(View.GONE);
-            Log.i(TAG, "onErrorResponse: "+error.toString());
-        });
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    OkHttpClient client = new OkHttpClient();
+
+                    Request request = new Request.Builder()
+                            .url("https://api.themoviedb.org/3/movie/popular?language=en-US&page=1")
+                            .get()
+                            .addHeader("accept", "application/json")
+                            .addHeader("Authorization", "Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiJhOTc2Yzg2N2IxYjY2MjE1OWJhNmM4ODAzYzVlYTFlMyIsInN1YiI6IjY2MzdmYTZmODEzY2I2MDEyMTg5MGQzMCIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.eOSdLss3jQYCM2vo2ajh90o18qDOWCngItgPcWToUcE")
+                            .build();
+
+                    Response response = client.newCall(request).execute();
+                    Log.d("TAG", response.body().string());
+                    loading1.setVisibility(View.GONE);
+                    Gson gson=new Gson();
+                    ListFilm1 items = gson.fromJson(response.body().string(), ListFilm1.class);
+                    adapterBestMovies = new FilmListAdapter(items.getResults());
+                    recyclerViewBestMovies.setAdapter(adapterBestMovies);
+
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }).start();
         mRequesstQueue.add(mStringRequest);
     }
 
-    private void sendRequestUpComming() {
-        mRequesstQueue= Volley.newRequestQueue(this);
-        loading3.setVisibility(View.VISIBLE);
-        mStringRequest3=new StringRequest(Request.Method.GET, "https://moviesapi.ir/api/v1/movies?page=2", response -> {
-            Gson gson=new Gson();
-            loading3.setVisibility(View.GONE);
-            ListFilm items=gson.fromJson(response,ListFilm.class);
-            adapterUpcomming=new FilmListAdapter(items);
-            recyclerviewUpcomming.setAdapter(adapterUpcomming);
-        }, error -> {
-            loading3.setVisibility(View.GONE);
-            Log.i(TAG, "onErrorResponse: "+error.toString());
-        });
-        mRequesstQueue.add(mStringRequest3);
-    }
+//    private void sendRequestUpComming() {
+//        mRequesstQueue= Volley.newRequestQueue(this);
+//        loading3.setVisibility(View.VISIBLE);
+//        mStringRequest3=new StringRequest(Request.Method.GET, "https://moviesapi.ir/api/v1/movies?page=2", response -> {
+//            Gson gson=new Gson();
+//            loading3.setVisibility(View.GONE);
+//            ListFilm items=gson.fromJson(response,ListFilm.class);
+//            adapterUpcomming=new FilmListAdapter(items);
+//            recyclerviewUpcomming.setAdapter(adapterUpcomming);
+//        }, error -> {
+//            loading3.setVisibility(View.GONE);
+//            Log.i(TAG, "onErrorResponse: "+error.toString());
+//        });
+//        mRequesstQueue.add(mStringRequest3);
+//    }
 
-    private void sendRequestCategory() {
-        mRequesstQueue= Volley.newRequestQueue(this);
-        loading2.setVisibility(View.VISIBLE);
-        mStringRequest2=new StringRequest(Request.Method.GET, "https://moviesapi.ir/api/v1/genres", response -> {
-            Gson gson=new Gson();
-            loading2.setVisibility(View.GONE);
-            ArrayList<GenresItem> catList=gson.fromJson(response,new TypeToken<ArrayList<GenresItem>>(){
+//    private void test() {
+//        new Thread(new Runnable() {
+//            @Override
+//            public void run() {
+//                try {
+//                    OkHttpClient client = new OkHttpClient();
+//
+//                    Request request = new Request.Builder()
+//                            .url("https://api.themoviedb.org/3/movie/popular?language=en-US&page=1")
+//                            .get()
+//                            .addHeader("accept", "application/json")
+//                            .addHeader("Authorization", "Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiJhOTc2Yzg2N2IxYjY2MjE1OWJhNmM4ODAzYzVlYTFlMyIsInN1YiI6IjY2MzdmYTZmODEzY2I2MDEyMTg5MGQzMCIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.eOSdLss3jQYCM2vo2ajh90o18qDOWCngItgPcWToUcE")
+//                            .build();
+//
+//                    Response response = client.newCall(request).execute();
+//                    Log.d("TAG", response.body().string());
+//                } catch (Exception e) {
+//                    e.printStackTrace();
+//                }
+//            }
+//        }).start();
+//    }
 
-            }.getType());
-            adapterCategory=new CategoryListAdapter(catList);
-            recyclerviewCategory.setAdapter(adapterCategory);
-        }, error -> {
-            loading2.setVisibility(View.GONE);
-            Log.i(TAG, "onErrorResponse: "+error.toString());
-        });
-        mRequesstQueue.add(mStringRequest2);
-    }
+//    private void sendRequestCategory() {
+//        mRequesstQueue= Volley.newRequestQueue(this);
+//        loading2.setVisibility(View.VISIBLE);
+//        mStringRequest2=new StringRequest(Request.Method.GET, "https://moviesapi.ir/api/v1/genres", response -> {
+//            Gson gson=new Gson();
+//            loading2.setVisibility(View.GONE);
+//            ArrayList<GenresItem> catList=gson.fromJson(response,new TypeToken<ArrayList<GenresItem>>(){
+//
+//            }.getType());
+//            adapterCategory=new CategoryListAdapter(catList);
+//            recyclerviewCategory.setAdapter(adapterCategory);
+//        }, error -> {
+//            loading2.setVisibility(View.GONE);
+//            Log.i(TAG, "onErrorResponse: "+error.toString());
+//        });
+//        mRequesstQueue.add(mStringRequest2);
+//    }
 
     private void banner() {
         List<SliderItems> sliderItems= new ArrayList<>();
