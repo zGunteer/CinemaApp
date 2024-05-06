@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
@@ -24,6 +25,7 @@ import com.android.volley.toolbox.Volley;
 import com.example.aplicatiecinema.Adapters.CategoryListAdapter;
 import com.example.aplicatiecinema.Adapters.FilmListAdapter;
 import com.example.aplicatiecinema.Adapters.SliderAdapters;
+import com.example.aplicatiecinema.Domain.Genre;
 import com.example.aplicatiecinema.Domain.GenresItem;
 import com.example.aplicatiecinema.Domain.ListFilm;
 import com.example.aplicatiecinema.Domain.ListFilm1;
@@ -31,6 +33,7 @@ import com.example.aplicatiecinema.Domain.Result;
 import com.example.aplicatiecinema.Domain.SliderItems;
 import com.example.aplicatiecinema.R;
 import com.google.gson.Gson;
+import com.google.gson.JsonArray;
 import com.google.gson.reflect.TypeToken;
 
 import java.io.IOException;
@@ -42,6 +45,11 @@ import okhttp3.Callback;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
+
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 public class MainActivity extends AppCompatActivity {
     private RecyclerView.Adapter adapterBestMovies,adapterUpcomming,adapterCategory;
@@ -60,35 +68,23 @@ public class MainActivity extends AppCompatActivity {
         initView();
         banner();
         sendRequestBestMovies();
-//        sendRequestUpComming();
-//        sendRequestCategory();
+        sendRequestUpComing();
+        sendRequestCategory();
 
     }
 
     private void sendRequestBestMovies() {
-//        mRequesstQueue= Volley.newRequestQueue(this);
-//        loading1.setVisibility(View.VISIBLE);
-//        mStringRequest=new StringRequest(Request.Method.GET, "https://moviesapi.ir/api/v1/movies?page=1", response -> {
-//            Gson gson=new Gson();
-//            loading1.setVisibility(View.GONE);
-//            ListFilm items=gson.fromJson(response,ListFilm.class);
-//            adapterBestMovies=new FilmListAdapter(items);
-//            recyclerViewBestMovies.setAdapter(adapterBestMovies);
-//        }, error -> {
-//            loading1.setVisibility(View.GONE);
-//            Log.i(TAG, "onErrorResponse: "+error.toString());
-//        });
-//        mRequesstQueue.add(mStringRequest);
-        OkHttpClient client = new OkHttpClient();
+
+        OkHttpClient client1 = new OkHttpClient();
         loading1.setVisibility(View.VISIBLE);
-        Request request = new Request.Builder()
+        Request request1 = new Request.Builder()
                 .url("https://api.themoviedb.org/3/movie/popular?language=en-US&page=1")
                 .get()
                 .addHeader("accept", "application/json")
                 .addHeader("Authorization", "Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiJhOTc2Yzg2N2IxYjY2MjE1OWJhNmM4ODAzYzVlYTFlMyIsInN1YiI6IjY2MzdmYTZmODEzY2I2MDEyMTg5MGQzMCIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.eOSdLss3jQYCM2vo2ajh90o18qDOWCngItgPcWToUcE")
                 .build();
 
-        client.newCall(request).enqueue(new Callback() {
+        client1.newCall(request1).enqueue(new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
                 Log.e(TAG, "Failed to fetch data: " + e.getMessage());
@@ -130,22 +126,136 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-//    private void sendRequestUpComming() {
-//        mRequesstQueue= Volley.newRequestQueue(this);
-//        loading3.setVisibility(View.VISIBLE);
-//        mStringRequest3=new StringRequest(Request.Method.GET, "https://moviesapi.ir/api/v1/movies?page=2", response -> {
-//            Gson gson=new Gson();
-//            loading3.setVisibility(View.GONE);
-//            ListFilm items=gson.fromJson(response,ListFilm.class);
-//            adapterUpcomming=new FilmListAdapter(items);
-//            recyclerviewUpcomming.setAdapter(adapterUpcomming);
-//        }, error -> {
-//            loading3.setVisibility(View.GONE);
-//            Log.i(TAG, "onErrorResponse: "+error.toString());
-//        });
-//        mRequesstQueue.add(mStringRequest3);
-//    }
-//
+
+    private void sendRequestUpComing() {
+
+        OkHttpClient client3 = new OkHttpClient();
+        loading3.setVisibility(View.VISIBLE);
+        Request request3 = new Request.Builder()
+                .url("https://api.themoviedb.org/3/movie/upcoming?language=en-US&page=1")
+                .get()
+                .addHeader("accept", "application/json")
+                .addHeader("Authorization", "Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI2Mzk0MzY0MTFjMTIwZDQ0YmUwNmNhMjEwZTVhZjcxMyIsInN1YiI6IjY2MzhiOTNhMmEwOWJjMDEyOTVhOTQ1OCIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.PLRbI4UREODqw8wx6JL0LSgOdzq3UrvwYbBFnUUzUz0")
+                .build();
+
+        client3.newCall(request3).enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                Log.e(TAG, "Failed to fetch data: " + e.getMessage());
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Toast.makeText(MainActivity.this, "Failed to fetch data", Toast.LENGTH_SHORT).show();
+                    }
+                });
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                if (response.isSuccessful()) {
+                    String responseData = response.body().string();
+                    loading3.setVisibility(View.GONE);
+                    Log.d(TAG, "Response data: " + responseData); // Log the response for debugging
+                    Gson gson = new Gson();
+                    ListFilm1 listFilm1 = gson.fromJson(responseData, ListFilm1.class);
+                    List<Result> results = listFilm1.getResults();
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            FilmListAdapter adapterUpcoming = new FilmListAdapter(results);
+                            recyclerviewUpcomming.setAdapter(adapterUpcoming);
+                        }
+                    });
+                } else {
+                    Log.e(TAG, "Failed to fetch data: " + response.code() + " - " + response.message());
+                    loading3.setVisibility(View.VISIBLE);
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            Toast.makeText(MainActivity.this, "Failed to fetch data", Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                }
+            }
+        });
+    }
+
+    private void sendRequestCategory() {
+        OkHttpClient client2 = new OkHttpClient();
+        loading2.setVisibility(View.VISIBLE);
+
+        Request request2 = new Request.Builder()
+                .url("https://api.themoviedb.org/3/genre/movie/list?language=en")
+                .get()
+                .addHeader("accept", "application/json")
+                .addHeader("Authorization", "Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI2Mzk0MzY0MTFjMTIwZDQ0YmUwNmNhMjEwZTVhZjcxMyIsInN1YiI6IjY2MzhiOTNhMmEwOWJjMDEyOTVhOTQ1OCIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.PLRbI4UREODqw8wx6JL0LSgOdzq3UrvwYbBFnUUzUz0")
+                .build();
+
+        client2.newCall(request2).enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                Log.e(TAG, "Failed to fetch data: " + e.getMessage());
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        loading2.setVisibility(View.GONE);
+                        Toast.makeText(MainActivity.this, "Failed to fetch data", Toast.LENGTH_SHORT).show();
+                    }
+                });
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                if (response.isSuccessful()) {
+                    String responseData = response.body().string();
+                    loading2.setVisibility(View.GONE);
+
+                    try {
+                        JSONObject jsonObject = new JSONObject(responseData);
+                        JSONArray genresArray = jsonObject.getJSONArray("genres");
+
+                        // Parse JSON response and create a list of Genre objects
+                        List<Genre> genres = new ArrayList<>();
+                        for (int i = 0; i < genresArray.length(); i++) {
+                            JSONObject genreObject = genresArray.getJSONObject(i);
+                            int id = genreObject.getInt("id");
+                            String name = genreObject.getString("name");
+                            Genre genre = new Genre();
+                            genre.setId(id);
+                            genre.setName(name);
+                            genres.add(genre);
+                        }
+
+                        // Update UI on the main thread
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                // Create and set adapter for the category RecyclerView
+                                CategoryListAdapter adapterCategory = new CategoryListAdapter(genres);
+                                recyclerviewCategory.setAdapter(adapterCategory);
+                            }
+                        });
+                    } catch (JSONException e) {
+                        Log.e(TAG, "JSON parsing error: " + e.getMessage());
+                        e.printStackTrace();
+                    }
+                } else {
+                    Log.e(TAG, "Failed to fetch data: " + response.code() + " - " + response.message());
+                    loading2.setVisibility(View.GONE);
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            Toast.makeText(MainActivity.this, "Failed to fetch data", Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                }
+            }
+        });
+    }
+
+
+
+
 //    private void sendRequestCategory() {
 //        mRequesstQueue= Volley.newRequestQueue(this);
 //        loading2.setVisibility(View.VISIBLE);
@@ -163,6 +273,24 @@ public class MainActivity extends AppCompatActivity {
 //        });
 //        mRequesstQueue.add(mStringRequest2);
 //    }
+
+//    private void sendRequestUpComming() {
+//        mRequesstQueue= Volley.newRequestQueue(this);
+//        loading3.setVisibility(View.VISIBLE);
+//        mStringRequest3=new StringRequest(Request.Method.GET, "https://moviesapi.ir/api/v1/movies?page=2", response -> {
+//            Gson gson=new Gson();
+//            loading3.setVisibility(View.GONE);
+//            ListFilm items=gson.fromJson(response,ListFilm.class);
+//            adapterUpcomming=new FilmListAdapter(items);
+//            recyclerviewUpcomming.setAdapter(adapterUpcomming);
+//        }, error -> {
+//            loading3.setVisibility(View.GONE);
+//            Log.i(TAG, "onErrorResponse: "+error.toString());
+//        });
+//        mRequesstQueue.add(mStringRequest3);
+//    }
+
+
 
     private void banner() {
         List<SliderItems> sliderItems= new ArrayList<>();

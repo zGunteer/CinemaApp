@@ -16,17 +16,19 @@ import com.bumptech.glide.load.resource.bitmap.CenterCrop;
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners;
 import com.bumptech.glide.request.RequestOptions;
 import com.example.aplicatiecinema.Activities.DetailActivity;
+import com.example.aplicatiecinema.Domain.Genre;
 import com.example.aplicatiecinema.Domain.GenresItem;
 import com.example.aplicatiecinema.Domain.ListFilm;
 import com.example.aplicatiecinema.R;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class CategoryListAdapter extends RecyclerView.Adapter<CategoryListAdapter.ViewHolder> {
-    ArrayList<GenresItem> items;
+    List<Genre> items;
     Context context;
 
-    public CategoryListAdapter(ArrayList<GenresItem> item) {
+    public CategoryListAdapter(List<Genre> item) {
         this.items = item;
     }
 
@@ -62,3 +64,4 @@ public class CategoryListAdapter extends RecyclerView.Adapter<CategoryListAdapte
         }
     }
 }
+
