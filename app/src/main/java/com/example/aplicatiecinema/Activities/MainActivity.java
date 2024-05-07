@@ -21,11 +21,12 @@ import androidx.viewpager2.widget.ViewPager2;
 //import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.StringRequest;
+import com.example.aplicatiecinema.Adapters.CategoryListAdapter;
 import com.example.aplicatiecinema.Adapters.FilmListAdapter;
 import com.example.aplicatiecinema.Adapters.SliderAdapters;
 import com.example.aplicatiecinema.Domain.Genre;
 import com.example.aplicatiecinema.Domain.GenresItem;
-import com.example.aplicatiecinema.Domain.ListFilm;
+
 import com.example.aplicatiecinema.Domain.ListFilm1;
 import com.example.aplicatiecinema.Domain.Result;
 import com.example.aplicatiecinema.Domain.SliderItems;
