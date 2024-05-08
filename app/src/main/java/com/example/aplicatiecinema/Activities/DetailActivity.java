@@ -17,6 +17,9 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
+import com.bumptech.glide.Glide;
+import com.example.aplicatiecinema.Domain.ListFilm1;
+import com.example.aplicatiecinema.Domain.Result;
 import com.example.aplicatiecinema.R;
 import com.google.gson.Gson;
 
@@ -51,6 +54,16 @@ public class DetailActivity extends AppCompatActivity {
                 Gson gson=new Gson();
                 progressBar.setVisibility(View.GONE);
                 scrollView.setVisibility(View.GONE);
+
+                Result item=gson.fromJson(response,Result.class);
+
+                Glide.with(DetailActivity.this)
+                        .load(item.getPosterPath())
+                        .into(pic2);
+
+                titleTxt.setText(item.getTitle());
+                movieRateTxt.setText(item.getVoteAverage());
+//                movieTimeTxt.setText(item.);
             }
         }, new Response.ErrorListener() {
             @Override
