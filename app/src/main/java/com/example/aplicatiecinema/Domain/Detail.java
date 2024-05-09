@@ -115,7 +115,7 @@ public class Detail {
         {
             return "Not Available";
         }
-        return budget;
+        return budget + "$";
     }
 
     public void setBudget(String budget) {
