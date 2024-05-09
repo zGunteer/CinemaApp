@@ -20,20 +20,16 @@ import androidx.recyclerview.widget.RecyclerView;
 //import com.android.volley.VolleyError;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.StringRequest;
-import com.android.volley.toolbox.Volley;
 import com.bumptech.glide.Glide;
-import com.example.aplicatiecinema.Adapters.DetailAdapter;
+import com.example.aplicatiecinema.Adapters.CategoryEachFilmListAdapter;
+import com.example.aplicatiecinema.Adapters.CategoryListAdapter;
 import com.example.aplicatiecinema.Domain.Detail;
 import com.example.aplicatiecinema.Domain.GenreDetail;
-import com.example.aplicatiecinema.Domain.ListFilm1;
-import com.example.aplicatiecinema.Domain.Result;
 import com.example.aplicatiecinema.R;
 import com.google.gson.Gson;
 
 import java.io.IOException;
 
-import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 
 import okhttp3.Call;
@@ -102,6 +98,8 @@ public class DetailActivity extends AppCompatActivity {
                             movieRateTxt.setText(String.valueOf(detail.getVoteAverage()));
                             movieTimeTxt.setText(String.valueOf(detail.getRuntime()) + " min");
                             movieSummaryInfo.setText(detail.getOverview());
+                            movieActorsInfo.setText(detail.getBudget());
+
 
                             Glide.with(getApplicationContext())
                                     .load("https://image.tmdb.org/t/p/w500" + detail.getPosterPath())
@@ -115,8 +113,11 @@ public class DetailActivity extends AppCompatActivity {
                                 genresBuilder.append(genre.getName()).append(", ");
                             }
                             String genresText = genresBuilder.toString().trim();
+
                             if (!genresText.isEmpty()) {
                                 genresText = genresText.substring(0, genresText.length() - 2); // Remove the last comma and space
+                                adapterCategory = new CategoryEachFilmListAdapter(genres);
+                                recyclerViewCategory.setAdapter(adapterCategory);
                             }
                         }
                     });
@@ -140,8 +141,8 @@ public class DetailActivity extends AppCompatActivity {
         movieActorsInfo=findViewById(R.id.movieActorInfo);
         backImg=findViewById(R.id.backImg);
         recyclerViewCategory=findViewById(R.id.genreView);
-        recyclerViewActors=findViewById(R.id.imagesRecycler);
-        recyclerViewActors.setLayoutManager(new LinearLayoutManager(this,LinearLayoutManager.HORIZONTAL,false));
+//        recyclerViewActors=findViewById(R.id.imagesRecycler);
+//        recyclerViewActors.setLayoutManager(new LinearLayoutManager(this,LinearLayoutManager.HORIZONTAL,false));
         recyclerViewCategory.setLayoutManager(new LinearLayoutManager(this,LinearLayoutManager.HORIZONTAL,false));
 
         backImg.setOnClickListener(view -> finish());

@@ -18,7 +18,7 @@ public class Detail {
     private Object belongsToCollection;
     @SerializedName("budget")
     @Expose
-    private Integer budget;
+    private String budget;
     @SerializedName("genres")
     @Expose
     private List<GenreDetail> genres;
@@ -110,11 +110,15 @@ public class Detail {
         this.belongsToCollection = belongsToCollection;
     }
 
-    public Integer getBudget() {
+    public String getBudget() {
+        if (budget.equals("0"))
+        {
+            return "Not Available";
+        }
         return budget;
     }
 
-    public void setBudget(Integer budget) {
+    public void setBudget(String budget) {
         this.budget = budget;
     }
 
