@@ -1,6 +1,9 @@
 package com.example.aplicatiecinema.Activities;
 
+import static com.android.volley.VolleyLog.TAG;
+
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
@@ -11,17 +14,33 @@ import androidx.core.widget.NestedScrollView;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.android.volley.Request;
+//import com.android.volley.Request;
+//import com.android.volley.RequestQueue;
+//import com.android.volley.Response;
+//import com.android.volley.VolleyError;
 import com.android.volley.RequestQueue;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.bumptech.glide.Glide;
+import com.example.aplicatiecinema.Adapters.DetailAdapter;
+import com.example.aplicatiecinema.Domain.Detail;
+import com.example.aplicatiecinema.Domain.GenreDetail;
 import com.example.aplicatiecinema.Domain.ListFilm1;
 import com.example.aplicatiecinema.Domain.Result;
 import com.example.aplicatiecinema.R;
 import com.google.gson.Gson;
+
+import java.io.IOException;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
 
 public class DetailActivity extends AppCompatActivity {
     private RequestQueue mRequestQueue;
@@ -44,34 +63,70 @@ public class DetailActivity extends AppCompatActivity {
     }
 
     private void sendRequest() {
-        mRequestQueue = Volley.newRequestQueue(this);
-        progressBar.setVisibility(View.VISIBLE);
-        scrollView.setVisibility(View.GONE);
+        OkHttpClient client4 = new OkHttpClient();
 
-        mStringRequest = new StringRequest(Request.Method.GET, "https://moviesapi.ir/api/v1/movies/{movie_id}" + idFilm, new Response.Listener<String>() {
+        Request request4 = new Request.Builder()
+                .url("https://api.themoviedb.org/3/movie/" + idFilm + "?append_to_response=823464&language=en-US")
+                .get()
+                .addHeader("accept", "application/json")
+                .addHeader("Authorization", "Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI2Mzk0MzY0MTFjMTIwZDQ0YmUwNmNhMjEwZTVhZjcxMyIsInN1YiI6IjY2MzhiOTNhMmEwOWJjMDEyOTVhOTQ1OCIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.PLRbI4UREODqw8wx6JL0LSgOdzq3UrvwYbBFnUUzUz0")
+                .build();
+
+        client4.newCall(request4).enqueue(new Callback() {
             @Override
-            public void onResponse(String response) {
-                Gson gson=new Gson();
+            public void onFailure(Call call, IOException e) {
+                // Handle failure
+                Log.e(TAG, "Failed to fetch data: " + e.getMessage());
                 progressBar.setVisibility(View.GONE);
-                scrollView.setVisibility(View.GONE);
-
-                Result item=gson.fromJson(response,Result.class);
-
-                Glide.with(DetailActivity.this)
-                        .load(item.getPosterPath())
-                        .into(pic2);
-
-                titleTxt.setText(item.getTitle());
-                movieRateTxt.setText(item.getVoteAverage());
-//                movieTimeTxt.setText(item.);
             }
-        }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError volleyError) {
 
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                if (response.isSuccessful()) {
+                    String responseData = response.body().string();
+                    Log.d(TAG, "Response data: " + responseData);
+
+                    // Parse JSON response using Gson
+                    Gson gson = new Gson();
+                    Detail detail = gson.fromJson(responseData, Detail.class);
+
+                    // Update UI on the main thread
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            progressBar.setVisibility(View.GONE);
+                            //DetailAdapter detailAdapter= new DetailAdapter(detail);
+
+
+                            titleTxt.setText(detail.getTitle());
+                            movieRateTxt.setText(String.valueOf(detail.getVoteAverage()));
+                            movieTimeTxt.setText(String.valueOf(detail.getRuntime()) + " min");
+                            movieSummaryInfo.setText(detail.getOverview());
+
+                            Glide.with(getApplicationContext())
+                                    .load("https://image.tmdb.org/t/p/w500" + detail.getPosterPath())
+                                    .into(pic2);
+
+                            // Set other details such as genres and actors (if available)
+                            // For example, you can set genres using a loop if they are in a list
+                            StringBuilder genresBuilder = new StringBuilder();
+                            List<GenreDetail> genres = detail.getGenresDetail();
+                            for (GenreDetail genre : genres) {
+                                genresBuilder.append(genre.getName()).append(", ");
+                            }
+                            String genresText = genresBuilder.toString().trim();
+                            if (!genresText.isEmpty()) {
+                                genresText = genresText.substring(0, genresText.length() - 2); // Remove the last comma and space
+                            }
+                        }
+                    });
+                } else {
+                    // Handle unsuccessful response
+                    Log.e(TAG, "Failed to fetch data: " + response.code() + " - " + response.message());
+                    progressBar.setVisibility(View.GONE);
+                }
             }
         });
-        mRequestQueue.add(mStringRequest);
     }
 
     private void initView() {
